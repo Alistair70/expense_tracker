@@ -1,0 +1,371 @@
+/* styles.css */
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.supercontainer{
+    margin-top: 5%;
+    max-width: 600px;
+    min-width: 90%;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    align-items: center;
+    text-align: center; 
+}
+
+.container {
+    min-width: 500px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    align-items: center;
+    text-align: center; 
+}
+
+h1 {
+    color: #333;
+}
+
+h2 {
+    color: rgb(23, 38, 176);
+    align-self: center;
+}
+
+p {
+    color: #666;
+    line-height: 1.5;
+}
+
+err{
+    font-family: Arial, sans-serif;
+    color:red;
+    line-height: 1.5;
+}
+
+label{
+    color:#333;
+    font-family: Arial, sans-serif;
+
+}
+
+ul.no-bullets {
+      list-style-type: none;
+      padding: 0; /* Remove default padding */
+      /*text-align: center; /* Center-align the list items */
+    }
+
+
+
+li{
+    color:#333333;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    min-width: 150px;
+    min-height: 25px;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.btn_toDash {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: black;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    min-width: 150px;
+    min-height: 25px;
+}
+.btn_toDash:hover{
+    background-color: darkgrey;
+    color: black;
+}
+
+.btn_new{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: limegreen;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    min-width: 150px;
+    min-height: 25px;
+}
+.btn_new:hover{
+    background-color: green;
+    color: black;
+}
+
+.btn_delete{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #FF0000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    min-width: 150px;
+    min-height: 25px;
+}
+.btn_delete:hover{
+    background-color: #B70000;
+    color: black;
+}
+
+.btn_remove{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: red;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    padding: 5px 10px;
+    margin-left: 10px; 
+    min-width: 150px;
+    min-height: 25px;
+}
+
+.btn_logout{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: white;
+    color:  black;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    min-width: 150px;
+    min-height: 25px;
+}
+.btn_logout:hover{
+    background-color: whitesmoke;
+    color: black;
+}
+
+
+
+
+
+
+.btn_toBudget{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: lightgray;
+    color:  black;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    justify-self: center;
+    align-self: center;
+    min-width: 150px;
+    min-height: 25px;
+}
+.btn_toBudget:hover{
+    background-color: gray;
+    color: black;
+}
+
+
+.selectCus
+{
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+input[type="text"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+input[type="password"] {
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Apply styles when the input field is focused */
+input[type="password"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+input[type="number"] {
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+input[type="number"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+/*****************************************************************/
+
+.navbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+}
+
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.bar {
+    background-color: white;
+    height: 3px;
+    width: 25px;
+    margin: 3px 0;
+}
+
+.logout-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.content {
+    padding: 20px;
+}
+
+/***********************************/
+
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.button-container button {
+    margin-right: 10px;
+}
+
+.input-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.input-container select, .input-container input {
+    margin-bottom: 10px;
+}
+
+/**************************************/
+/*Styling for the tables under edit_expenses/edit_incomes*/
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  .delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+/**********************
+Progress Bars */
+
+.progress-bar-container {
+    width: 100%;
+    border: 1px solid #ddd; /* Outline for the full bar */
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .progress-bar {
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #fff;
+  }
+  
+  .progress-bar-inner {
+    height: 100%;
+    width: 0;
+    border-radius: 5px;
+  }

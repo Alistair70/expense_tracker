@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Budget</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> 
+    <style>
+        body{
+           background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div class = "container">
+        <div class="button-container">
+            <button id="dashButton" class="btn_toDash">Dashboard</button> 
+            <button id="logout" class="btn_logout">Logout</button> 
+        </div>
+        
+        <div class="input-container" style="display:block;" id="expenseForm">
+            <h2>Set/Update Budget Targets</h2>
+            <label for="expenseType">Expense Type:</label>
+            <select id="expenseType" class="selectCus"></select><br>
+            <label>Amount($):</label>
+            <input type="number" id="budgetAmount" min="0" placeholder="Enter amount"><br>
+            <button id="confirmBudgetButton" class="btn_new">Set/Update Budget</button><br><br>
+            <label id="error"></label>
+        </div>
+        <div class="input-container" style="display:block;" id="budgetList">
+            <h2>Current Budget Targets</h2>
+            <table id="dataGrid">
+                <thead>
+                  <tr>                    
+                    <th>Expense</th>
+                    <th>Budget Amount</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            <label id="message"></label><br>
+        </div> 
+        
+    </div>
+
+    
+    <script src="static/js/budget_script.js"></script>
+</body>
+</html>

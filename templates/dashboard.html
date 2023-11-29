@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> 
+    <style>
+        body{
+           background-color: black;
+        }
+    </style>
+</head>
+<body style="height: fit-content;">
+    <div class = "container" style = "min-width: 1000px;" >
+        <div class="button-container">            
+            <button id="toIncome" class="btn_new">Edit/View Income</button>  
+            <button id="toExpense" class="btn_delete">Edit/View Expenses</button>
+            <button id="toBudget" class="btn_toBudget">Edit/View Budget</button>
+            <button id="logout" class="btn_logout">Logout</button> 
+        </div>
+        <h2>Income-Expense Comparison</h2>
+        <div id="income_expense_comparison"></div>
+
+        <h2>Income Breakdown</h2>
+        <div id="income_breakdown"></div>
+
+        <h2>Expense Breakdown</h2>
+        <div id="expense_breakdown"></div>        
+        
+        <h2>Budget Goal Tracker</h2>
+        <div id="progressBars"></div>
+
+        <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+        <div class="input-container" style="display:block;" id="budgetList">
+            
+            <label id="message"></label><br>
+        </div> 
+        
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="static/js/dashboard2.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expenses</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> 
+    <style>
+        body{
+           background-color: lightcoral;
+        }
+    </style>
+</head>
+<body>
+    <div class = "container">
+        <div class="button-container">            
+            <button id="dashButton" class="btn_toDash">Dashboard</button>  
+            <button id="addExpenseBtn" class="btn">Add Expense</button>
+            <button id="addExpenseTypeBtn" class="btn">Add Expense Type</button>
+            <button id="editExpense" class="btn">Edit Expense Entries</button>
+            <button id="logout" class="btn_logout">Logout</button>                      
+        </div>
+        
+        <div class="input-container" style="display:block;" id="expenseForm">
+            <h2>Add Expense</h2>
+            <label for="expenseType" >Expense Type:</label>
+            <select id="expenseType" class="selectCus" placeholder="select Input Type"></select><br>
+            <label for="amount">Amount($):</label>
+            <input type="number" id="amount" min="0" placeholder="Enter amount"><br>
+            <label for="userDate">Enter a Date:</label>
+            <input type="date" id="userDate" class="selectCus"><br>
+            <button class = "btn_logout" onclick="setTodayDate()">Set Today's Date</button><br><br>
+            <button id="confirmExpenseBtn" class="btn_new">Confirm Expense</button><br><br>
+            <label id="error"></label>
+        </div>
+        <div class="input-container" style="display:none;" id="addExpenseType">
+            <h2>Add New Expense Type</h2>
+            <label for="amount">Enter Additional Expenses</label><br><br>
+            <input type="text" id="newExpense" name="newExpense" placeholder="Groceries, Utilities, Transportation, ect."><br><br>
+
+            <button id="confirmNewExpenseType" class="btn_new">Confirm Expense Type</button><br>
+            <label id="message"></label><br>
+
+            <h2>Remove Expense Types</h2>
+            <ul id="expenseTypesList" class="no-bullets"></ul>
+        </div> 
+        
+        <div class="input-container" style="display:none;" id="expenseEntries">
+            <table id="dataGrid">
+                <thead>
+                  <tr>                    
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+        </div>
+
+    </div>
+
+    
+    <script src="static/js/expense_script.js"></script>
+</body>
+</html>
