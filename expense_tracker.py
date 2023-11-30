@@ -37,19 +37,6 @@ col = db[MONGO_DB_COL]
 
 
 ###DEFINE INITIAL TEMPLATE ROUTES
-@app.route('/')
-def home():
-    return render_template('landing.html')
-
-@app.route('/success', methods = ['GET'])
-def success():
-    if "user" not in session:
-         return redirect(url_for('home'))
-    return render_template('success.html')
-
-@app.route('/login', methods=['GET','POST'])
-def login():
-    return render_template('login.html')
 
 ###USER LOGIN FUNCTIONALITY
 @app.route('/user_login', methods=['POST','GET'])
@@ -77,9 +64,6 @@ def user_login():
             return jsonify({'message': 'Invalid username or password'}), 401
 
 
-@app.route('/signup', methods=['GET','POST'])
-def signup():
-    return render_template('signup.html')
 
 ###Primary Sign-Up option is the traditional username-password method
 @app.route('/signup_user', methods=['POST'])
