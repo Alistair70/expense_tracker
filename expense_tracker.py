@@ -37,6 +37,10 @@ col = db[MONGO_DB_COL]
 
 
 ###DEFINE INITIAL TEMPLATE ROUTES
+@app.route('/')
+def home():
+    return redirect("https://expense-tracker-landing.netlify.app/")
+
 
 ###USER LOGIN FUNCTIONALITY
 @app.route('/user_login', methods=['POST','GET'])
@@ -61,7 +65,7 @@ def user_login():
             return jsonify({'message': 'Login successful'}), 200
         #If the credentials are incorrect the page refrehes with an error message
         else:
-            return jsonify({'message': 'Invalid username or password'}), 401
+            return jsonify({'message': 'Invalid username or password'}), 200
 
 
 
