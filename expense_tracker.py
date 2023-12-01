@@ -9,10 +9,6 @@ from flask_bcrypt import Bcrypt
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-
-with open("C:/Users/Alistair/OneDrive/Desktop/keys.json") as config_file:
-    config = json.load(config_file)
-
 app.secret_key = os.environ.get('APP_SECRET_KEY')
 MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME')
 MONGO_DB_PW = os.environ.get('MONGO_PW')
