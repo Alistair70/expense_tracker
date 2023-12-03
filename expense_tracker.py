@@ -61,7 +61,9 @@ def user_login():
             return jsonify({'message': 'Login successful'}), 200
         #If the credentials are incorrect the page refrehes with an error message
         else:
-            return jsonify({'message': 'Invalid username or password'}), 200
+            response = jsonify({'message': 'Invalid username or password'})
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
 
 
 
