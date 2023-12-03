@@ -4,3 +4,4 @@ Flask-Bcrypt==1.0.1
 gunicorn==21.2.0
 Werkzeug==3.0.0
 mysql-connector-python==8.0.33
+Flask-Cors==4.0.0

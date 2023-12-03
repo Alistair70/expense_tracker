@@ -4,10 +4,12 @@ import pymongo
 import os
 import json
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+CORS(app)
 
 app.secret_key = os.environ.get('APP_SECRET_KEY')
 MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME')
