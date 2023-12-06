@@ -45,17 +45,11 @@ def decode(payload):
 ###DEFINE INITIAL TEMPLATE ROUTES
 @app.route('/')
 def home():
-    return redirect("https://expense-tracker-landing.netlify.app/")
+    return render_template('landing.html')
 
 @app.route('/success', methods = ['GET'])
 def success():
-    if "user" not in session:
-         return redirect(url_for('home'))
     return render_template('success.html')
-
-@app.route('/get_cookie_name')
-def get_cookie_name():
-    return jsonify({'cookie_name': COOKIE_NAME})
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -128,8 +122,7 @@ def signup_user():
 #########################################################################
 @app.route('/dashboard', methods = ['GET'])
 def dashboard():
-    if "user" not in session:
-         return redirect(url_for('home'))
+    
     return render_template('dashboard.html')
 
 @app.route('/get_income_v_expense', methods = ['POST'])
@@ -154,8 +147,12 @@ def get_income_v_expense():
     cursor.execute(query)
     data = cursor.fetchall()    
     for row in data:
-        expenses.append(dict(zip([column[0] for column in cursor.description], row)))
+        expenses.append(dict(zip([column[0] for column in cursor.description], row)))        
     conn.close
+    
+    if len(income) == 0 and len(expenses) == 0:
+        response = {'status' : 'no_data'}
+        return jsonify(response)
 
     income_expense = {"income": income, "expenses": expenses}
     return jsonify(income_expense)
@@ -173,7 +170,11 @@ def get_income_breakdown():
     data = cursor.fetchall()    
     for row in data:
         incomes.append(dict(zip([column[0] for column in cursor.description], row)))
+        
     conn.close
+    if len(incomes) == 0:
+        response = {'status' : 'no_data'}
+        return jsonify(response)
     return jsonify(incomes)
 
 @app.route('/get_expense_breakdown', methods = ['POST'])
@@ -189,8 +190,11 @@ def get_expense_breakdown():
     data = cursor.fetchall()    
     for row in data:
         expenses.append(dict(zip([column[0] for column in cursor.description], row)))
-
     conn.close
+
+    if len(expenses) == 0:
+        response = {'status' : 'no_data'}
+        return jsonify(response)
     return jsonify(expenses)
 
 @app.route('/get_budget_recent_expenses', methods = ['POST'])
@@ -201,16 +205,21 @@ def get_budget_recent_expenses():
 
     budget_targets = col.find_one({"_id": master_user_id})
     budget_targets = budget_targets['budget']
+    print(budget_targets)
 
     query = f"SELECT expense_type, SUM(amount) AS total_amount FROM user_expenses WHERE user_id = {master_user_id} AND YEAR(day_month_year) = YEAR(CURDATE()) AND MONTH(day_month_year) = MONTH(CURDATE()) GROUP BY expense_type;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall() 
+    print(data)   
     for row in data:
         monthly_expenses.append(dict(zip([column[0] for column in cursor.description], row)))
-
     conn.close
+
+    if len(budget_targets) == 0 or len(monthly_expenses) == 0:
+        response = {'status' : 'no_data'}
+        return jsonify(response)
     return jsonify({'budget' : budget_targets, 'monthly_expenses' : monthly_expenses})
 
 
@@ -219,8 +228,6 @@ def get_budget_recent_expenses():
 ### REDIRECT USER TO INCOME HUB 
 @app.route('/income', methods = ['GET'])
 def income():
-    if "user" not in session:
-         return redirect(url_for('home'))
     return render_template('add_income.html')
 
 ### ADDS USER INCOME TO SQL DATABASE USING INFORMATION PORVIDED BY JAVASCRIPT REQUEST
@@ -249,6 +256,7 @@ def get_income_types():
     master_user_id = decode(encoded_id)
     incomeTypes = col.find_one({"_id": master_user_id})
     incomeTypes = incomeTypes['income_types']
+    print(incomeTypes)
     return jsonify({'types':incomeTypes})
 
 ###FUNCTIONALITY TO ADD A NEW INCOMETYPE TO THE USER'S NOSQL DOCUMENT
@@ -287,7 +295,6 @@ def remove_income_type():
 ### FUNCTIONALITY TO GET THE RECENT INCOME ENTRIES THE USER HAS ADDED TO THE SQL DATABSE
 @app.route('/get_recent_income', methods = ['POST'])
 def get_recent_income():
-    #Retrieves user's id from session
     encoded_id = request.json.get('encoded_id')
     master_user_id = decode(encoded_id)
     recent_income_entries = []
@@ -329,8 +336,6 @@ def delete_income_entry():
 ### REDIRECT USER TO EXPENSES HUB
 @app.route('/expenses', methods = ['GET'])
 def expenses():
-    if "user" not in session:
-         return redirect(url_for('home'))
     return render_template('add_expense.html')
 
 ### FUNCTIONALITY TO ADD A NEW EXPENSE TO THE SQL DATABASE
@@ -355,9 +360,12 @@ def add_expense():
 @app.route('/get_expense_types', methods = ['POST'])
 def get_expense_types():
     encoded_id = request.json.get('encoded_id')
+    print('enc')
+    print(encoded_id)
     master_user_id = decode(encoded_id)
     expenseTypes = col.find_one({"_id": master_user_id})
     expenseTypes = expenseTypes['expense_types']
+    print(expenseTypes)
     return jsonify({'types':expenseTypes})
 
 ### FUNCTINALITY TO ADD AN EXPENSE TYPE THE USER'S NOSQL DOCUMENT
@@ -386,7 +394,6 @@ def remove_expense_type():
     expenseTypeTBR = request.json.get('expenseTypeTBR')
     encoded_id = request.json.get('encoded_id')
 
-    # Get user id from session
     master_user_id = decode(encoded_id)
 
     # Remove the selected expense type from the user's NOSQL document
@@ -439,11 +446,9 @@ def delete_expense_entry():
 ### REDIRECT USER TO EXPENSES HUB
 @app.route('/budget', methods = ['GET'])
 def budget():
-    if "user" not in session:
-         return redirect(url_for('home'))
     return render_template('budget.html')
 
-@app.route('/get_budget_targets', methods = ['GET'])
+@app.route('/get_budget_targets', methods = ['POST'])
 def get_budget_targets():
     encoded_id = request.json.get('encoded_id')
     master_user_id = decode(encoded_id)

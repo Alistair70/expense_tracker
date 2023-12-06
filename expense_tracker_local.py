@@ -54,10 +54,6 @@ def home():
 def success():
     return render_template('success.html')
 
-@app.route('/get_cookie_name')
-def get_cookie_name():
-    return jsonify({'cookie_name': COOKIE_NAME})
-
 @app.route('/login', methods=['GET','POST'])
 def login():
     return render_template('login.html')
@@ -222,7 +218,6 @@ def get_budget_recent_expenses():
     print(data)   
     for row in data:
         monthly_expenses.append(dict(zip([column[0] for column in cursor.description], row)))
-
     conn.close
 
     if len(budget_targets) == 0 or len(monthly_expenses) == 0:
