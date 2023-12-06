@@ -3,20 +3,22 @@ document.getElementById("dashButton").addEventListener("click", function() {
     window.location.href = "/dashboard";
 });
 document.getElementById("logout").addEventListener("click", function() {
-    fetch('/logout', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === 'loggedOUT')
-            window.location.href = "/";
-    });
+    cookie_name = "expense_tracker_cookie_container"
+    document.cookie = `${cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    window.location.href = '/';
 });
+
+encoded_id = getEncodedID_or_Landing()
 
 // Request the expense types from the Python backend to populate the dropdown menu
 var expenseTypeDropdown = document.getElementById("expenseType");
+
 fetch('/get_expense_types', {
-    method: 'GET'        
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({encoded_id:encoded_id}),         
 })
 .then(response => response.json())
 .then(data => {
@@ -42,21 +44,26 @@ document.addEventListener('DOMContentLoaded', function () {
 function getExpenseTypes() {
     const expenseTypesList = document.getElementById('expenseTypesList');
     fetch('/get_expense_types', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),        
     })
     .then(response => response.json())
     .then(data => {
         
         for(x in data.types)
-        {            
+        {                    
             const li = document.createElement('li');
             li.textContent = data.types[x];
+            type = data.types[x];
             li.dataset.id = data.types[x];
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.classList.add('btn_remove');
             deleteButton.addEventListener('click', function () {
-                remove_expense_type(data.types[x]);
+                remove_expense_type(type);
                 location.reload();
             });
             li.appendChild(deleteButton);
@@ -70,9 +77,9 @@ function remove_expense_type(expenseType) {
     fetch('/remove_expense_type', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json'
         },
-        body: `expenseTypeTBR=${expenseType}`,
+        body: JSON.stringify({ expenseTypeTBR:expenseType , encoded_id:encoded_id }), 
     })
     .then(response => response.json())
     .catch(error => {
@@ -117,7 +124,7 @@ function saveExpenseToDatabase(expenseType, amount, date) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ expenseType: expenseType, amount: amount, date: date})
+        body: JSON.stringify({ expenseType: expenseType, amount: amount, date: date,encoded_id:encoded_id})
     })
     .then(response => response.json())
     
@@ -154,11 +161,11 @@ document.getElementById("confirmNewExpenseType").addEventListener("click", funct
 // saves them to the repesctive database.
 function saveExpenseTypeToDatabase(newExpenseType) {    
     fetch('/add_expense_type', {
-        method: 'POST',
+        method: 'POST',        
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ newExpenseType: newExpenseType})
+        body: JSON.stringify({ newExpenseType: newExpenseType,encoded_id:encoded_id})
     })
     .then(response => response.json())
     .then(data => {
@@ -186,7 +193,12 @@ document.getElementById("editExpense").addEventListener("click", function() {
 function getExpenseEntries() {
     const dataGrid = document.getElementById('dataGrid');
     fetch('/get_recent_expenses', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        
+        body: JSON.stringify({encoded_id:encoded_id}),        
     })
     .then(response => response.json())
     .then(data => {
@@ -209,12 +221,12 @@ function getExpenseEntries() {
 
 //Function that takes the ID of a singular expense entry and sends a request to delete it from the database
 function deleteEntry(id) {
-    fetch('/delete_expense_entry', {
+    fetch('/delete_expense_entry', {        
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json'
         },
-        body: `expenseEntryTBR=${id}`,
+        body: JSON.stringify({expenseEntryTBR:id , encoded_id:encoded_id}) 
     })
     .then(response => response.json())
     .then(data => {
@@ -235,4 +247,17 @@ function setTodayDate() {
     var yyyy = today.getFullYear();
     today = yyyy + '-' + mm + '-' + dd;
     dateInput.value = today;
+}
+
+function getEncodedID_or_Landing() {
+    const cookies = document.cookie.split(';');
+    cookie_name = "expense_tracker_cookie_container"
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+
+        if (name === cookie_name) {
+            return value;
+        }
+    }
+    location.href = '/';
 }

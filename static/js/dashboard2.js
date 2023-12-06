@@ -9,30 +9,38 @@ document.getElementById("toBudget").addEventListener("click", function() {
     window.location.href = "/budget";
 });
 document.getElementById("logout").addEventListener("click", function() {
-    fetch('/logout', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === 'loggedOUT')
-            window.location.href = "/";
-    });
+    cookie_name = "expense_tracker_cookie_container"
+    document.cookie = `${cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    window.location.href = '/';
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Fetch and display elements from the server
+    // Fetch and display elements from the server  
+    encoded_id = getEncodedID_or_Landing(); 
     income_v_expense();
     income_breakdown();
     expense_breakdown();
-    budget_progress();
+    budget_progress();   
+
 });
 
 function income_v_expense() {
     fetch('/get_income_v_expense', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),        
     })
-    .then(response => response.json())    
+    .then(response => response.json())
     .then(combinedData => {
+
+        if(combinedData.status == 'no_data')
+        {
+            console.log(combinedData.status)
+            var div = document.getElementById('income_expense_comparison');
+            div.innerHTML = 'NO DATA';
+        }
         // Process combined data for Plotly
         const dates = combinedData.income.map(item => item.month);
         const incomeValues = combinedData.income.map(item => item.total_income);
@@ -73,10 +81,20 @@ function income_v_expense() {
 
 function income_breakdown() {
     fetch('/get_income_breakdown', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),       
     })
     .then(response => response.json())    
-    .then(data => {        
+    .then(data => {   
+        if(data.status == 'no_data')
+        {
+            console.log(data.status)
+            var div1 = document.getElementById('income_breakdown');
+            div1.innerHTML = 'NO DATA';
+        }     
         // Extract unique income types
         const incomeTypes = [...new Set(data.map(entry => entry.income_type))];
 
@@ -114,10 +132,21 @@ function income_breakdown() {
 
 function expense_breakdown() {
     fetch('/get_expense_breakdown', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),        
     })
     .then(response => response.json())    
-    .then(data => {        
+    .then(data => {      
+        if(data.status == 'no_data')
+        {
+            console.log(data.status)
+            var div = document.getElementById('expense_breakdown');
+            div.innerHTML = 'NO DATA';
+        } 
+        
         // Extract unique income types
         const expenseTypes = [...new Set(data.map(entry => entry.expense_type))];
 
@@ -155,10 +184,22 @@ function expense_breakdown() {
 
 function budget_progress() {
     fetch('/get_budget_recent_expenses', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),         
     })
     .then(response => response.json())    
-    .then(data => {        
+    .then(data => {     
+        
+        if(data.status == 'no_data')
+        {
+            console.log(data.status)
+            var div = document.getElementById('progress_bars');
+            div.innerHTML = 'NO DATA';
+        } 
+
         const monthly_expenses = data.monthly_expenses;
 
         const budgetsArray = Object.entries(data.budget).map(([expenseType, amount]) => ({ budget_expense_type: expenseType, total_budget_amount: amount }));
@@ -219,3 +260,17 @@ function budget_progress() {
 
     });
 }
+
+function getEncodedID_or_Landing() {
+    const cookies = document.cookie.split(';');
+    cookie_name = "expense_tracker_cookie_container"
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+
+        if (name === cookie_name) {
+            return value;
+        }
+    }
+    location.href = '/';
+}
+

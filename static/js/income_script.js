@@ -2,20 +2,21 @@ document.getElementById("dashButton").addEventListener("click", function() {
     window.location.href = "/dashboard";
 });
 document.getElementById("logout").addEventListener("click", function() {
-    fetch('/logout', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === 'loggedOUT')
-            window.location.href = "/";
-    });
+    cookie_name = "expense_tracker_cookie_container"
+    document.cookie = `${cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    window.location.href = '/';
 });
+
+encoded_id = getEncodedID_or_Landing();
 
 // Request the income types from the Python backend to populate the dropdown menu
 var incomeTypeDropdown = document.getElementById("incomeType");
 fetch('/get_income_types', {
-    method: 'GET'        
+    method: 'POST',
+    headers: {
+       'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({encoded_id:encoded_id}),         
 })
 .then(response => response.json())
 .then(data => {
@@ -41,20 +42,25 @@ document.addEventListener('DOMContentLoaded', function () {
 function getIncomeTypes() {
     const incomeTypesList = document.getElementById('incomeTypesList');
     fetch('/get_income_types', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),        
     })
     .then(response => response.json())
     .then(data => {
         for(x in data.types)
         {           
             const li = document.createElement('li');
+            type = data.types[x];
             li.textContent = data.types[x];
             li.dataset.id = data.types[x];
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.classList.add('btn_remove');
             deleteButton.addEventListener('click', function () {
-                remove_income_type(data.types[x]);
+                remove_income_type(type);
                 location.reload();
             });
             li.appendChild(deleteButton);
@@ -68,9 +74,9 @@ function remove_income_type(incomeType) {
     fetch('/remove_income_type', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json'
         },
-        body: `incomeTypeTBR=${incomeType}`,
+        body: JSON.stringify({ incomeTypeTBR:incomeType , encoded_id:encoded_id }),
     })
     .then(response => response.json())    
     .catch(error => {
@@ -115,7 +121,7 @@ function saveIncomeToDatabase(incomeType, amount, date) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ incomeType: incomeType, amount: amount, date: date})
+        body: JSON.stringify({ incomeType: incomeType, amount: amount, date: date, encoded_id:encoded_id})
     })
     .then(response => response.json())
 }
@@ -155,7 +161,7 @@ function saveIncomeTypeToDatabase(newIncomeType) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ newIncomeType: newIncomeType})
+        body: JSON.stringify({ newIncomeType: newIncomeType , encoded_id:encoded_id})
     })
     .then(response => response.json())
     .then(data => {
@@ -182,7 +188,11 @@ document.getElementById("editIncome").addEventListener("click", function() {
 function getIncomeEntries() {
     const dataGrid = document.getElementById('dataGrid');
     fetch('/get_recent_income', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id})       
     })
     .then(response => response.json())
     .then(data => {
@@ -205,12 +215,12 @@ function getIncomeEntries() {
 
 //Function that takes the ID of a singular income entry and sends a request to delete it from the database
 function deleteEntry(id) {
-    fetch('/delete_income_entry', {
+    fetch('/delete_income_entry', {        
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json'
         },
-        body: `incomeEntryTBR=${id}`,
+        body: JSON.stringify({incomeEntryTBR:id , encoded_id:encoded_id}) 
     })
     .then(response => response.json())
     .then(data => {
@@ -232,4 +242,17 @@ function setTodayDate() {
     var yyyy = today.getFullYear();
     today = yyyy + '-' + mm + '-' + dd;
     dateInput.value = today;
+}
+
+function getEncodedID_or_Landing() {
+    const cookies = document.cookie.split(';');
+    cookie_name = "expense_tracker_cookie_container"
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+
+        if (name === cookie_name) {
+            return value;
+        }
+    }
+    location.href = '/';
 }

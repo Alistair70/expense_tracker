@@ -27,17 +27,26 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             },
             body: JSON.stringify({ username: username, password: password })
         })
-        .then(response => {
-                //If Request is successful user is redirected to dashboard page
-                if(response.status === 200) 
-                {
-                    location.href="dashboard"
-                }  
+        .then(response => response.json())
+        .then(data => 
+        {
+            encoded_id = data.encoded_id
+            cookie_name = "expense_tracker_cookie_container"   
+            //If Request is successful user is redirected to dashboard page
+            if(data.message === "Invalid username or password") 
+            {
+                document.getElementById("output").innerHTML = "Incorrect Username/Password";
+            }  
                 // If credentials are not valid, message is displayed to user showing "Incorrect Username/Password"
-                else
-                {
-                    document.getElementById("output").innerHTML = "Incorrect Username/Password";
-                } 
-            })
+            else if(data.message === "Login successful")
+            {
+                const now = new Date();
+                const expirationTime = new Date(now.getTime() + 15 * 60 * 1000);
+                
+                // Create a cookie string
+                document.cookie = `expense_tracker_cookie_container=${encoded_id}; expires=${expirationTime.toUTCString()}; path=/`;
+                location.href = '/dashboard'  
+            } 
+        })
         }
 });

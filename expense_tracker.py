@@ -25,15 +25,17 @@ db_config = {
     'database': os.environ.get('RDS_DB_NAME'),
 }
 
+COOKIE_NAME = os.environ.get('COOKIE_NAME')
+
 uri = f"mongodb+srv://{MONGO_DB_NAME}:{MONGO_DB_PW}@cluster0.wvhyisx.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(uri)
 db = client[MONGO_DB_DB]
 col = db[MONGO_DB_COL]
 
+
+
 def encode(user_id):    
-    payload = {
-        'user_id': user_id
-    }
+    payload = {'user_id': user_id}
     return jwt.encode(payload, app.secret_key ,algorithm='HS256')
 
 def decode(payload):
@@ -43,13 +45,17 @@ def decode(payload):
 ###DEFINE INITIAL TEMPLATE ROUTES
 @app.route('/')
 def home():
-    return render_template('landing.html')
+    return redirect("https://expense-tracker-landing.netlify.app/")
 
 @app.route('/success', methods = ['GET'])
 def success():
     if "user" not in session:
          return redirect(url_for('home'))
     return render_template('success.html')
+
+@app.route('/get_cookie_name')
+def get_cookie_name():
+    return jsonify({'cookie_name': COOKIE_NAME})
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -195,19 +201,16 @@ def get_budget_recent_expenses():
 
     budget_targets = col.find_one({"_id": master_user_id})
     budget_targets = budget_targets['budget']
-    print(budget_targets)
 
     query = f"SELECT expense_type, SUM(amount) AS total_amount FROM user_expenses WHERE user_id = {master_user_id} AND YEAR(day_month_year) = YEAR(CURDATE()) AND MONTH(day_month_year) = MONTH(CURDATE()) GROUP BY expense_type;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall() 
-    print(data)   
     for row in data:
         monthly_expenses.append(dict(zip([column[0] for column in cursor.description], row)))
 
     conn.close
-    print(monthly_expenses)
     return jsonify({'budget' : budget_targets, 'monthly_expenses' : monthly_expenses})
 
 
@@ -246,7 +249,6 @@ def get_income_types():
     master_user_id = decode(encoded_id)
     incomeTypes = col.find_one({"_id": master_user_id})
     incomeTypes = incomeTypes['income_types']
-    print(incomeTypes)
     return jsonify({'types':incomeTypes})
 
 ###FUNCTIONALITY TO ADD A NEW INCOMETYPE TO THE USER'S NOSQL DOCUMENT
@@ -356,7 +358,6 @@ def get_expense_types():
     master_user_id = decode(encoded_id)
     expenseTypes = col.find_one({"_id": master_user_id})
     expenseTypes = expenseTypes['expense_types']
-    print(expenseTypes)
     return jsonify({'types':expenseTypes})
 
 ### FUNCTINALITY TO ADD AN EXPENSE TYPE THE USER'S NOSQL DOCUMENT

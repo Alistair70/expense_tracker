@@ -4,21 +4,21 @@ document.getElementById("dashButton").addEventListener("click", function() {
 });
 
 document.getElementById("logout").addEventListener("click", function() {
-    fetch('/logout', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === 'loggedOUT')
-            window.location.href = "/";
-    });
+    cookie_name = "expense_tracker_cookie_container"
+    document.cookie = `${cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    window.location.href = '/';
 });
 
+encoded_id = getEncodedID_or_Landing();
 
 // Request the expense types from the Python backend to populate the dropdown menu
 var expenseTypeDropdown = document.getElementById("expenseType");
 fetch('/get_expense_types', {
-    method: 'GET'        
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({encoded_id:encoded_id}),         
 })
 .then(response => response.json())
 .then(data => {
@@ -35,13 +35,18 @@ fetch('/get_expense_types', {
 
 document.addEventListener('DOMContentLoaded', function () {
     // Fetch and display elements from the server
+    
     getBudgetEntries();
 });
 
 function getBudgetEntries() {
     const dataGrid = document.getElementById('dataGrid');
     fetch('/get_budget_targets', {
-        method: 'GET'        
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({encoded_id:encoded_id}),       
     })
     .then(response => response.json())
     .then(data => {        
@@ -91,8 +96,21 @@ function saveBudgetToDatabase(expenseType, newBudgetAmount) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ expenseType: expenseType, newBudgetAmount: newBudgetAmount})
+        body: JSON.stringify({ expenseType: expenseType, newBudgetAmount: newBudgetAmount, encoded_id:encoded_id})
     })
     .then(response => response.json())
+}
+
+function getEncodedID_or_Landing() {
+    const cookies = document.cookie.split(';');
+    cookie_name = "expense_tracker_cookie_container"
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+
+        if (name === cookie_name) {
+            return value;
+        }
+    }
+    location.href = '/';
 }
 
