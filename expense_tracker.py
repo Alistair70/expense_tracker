@@ -32,8 +32,6 @@ client = pymongo.MongoClient(uri)
 db = client[MONGO_DB_DB]
 col = db[MONGO_DB_COL]
 
-
-
 def encode(user_id):    
     payload = {'user_id': user_id}
     return jwt.encode(payload, app.secret_key ,algorithm='HS256')
@@ -45,7 +43,7 @@ def decode(payload):
 ###DEFINE INITIAL TEMPLATE ROUTES
 @app.route('/')
 def home():
-    return render_template('landing.html')
+    return redirect("https://expense-tracker-landing.netlify.app/")
 
 @app.route('/success', methods = ['GET'])
 def success():
