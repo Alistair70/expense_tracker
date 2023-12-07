@@ -73,11 +73,11 @@ def user_login():
             master_user_id = cursor.fetchone()
             master_user_id = master_user_id[0]
             encoded_id = encode(master_user_id)
-            resp = jsonify({'message': 'Invalid username or password'})
-            resp.set_cookie('expense_tracker_cookie_container_2', encoded_id, domain='.netlify.app', max_age=3600)
+            resp = jsonify({'message': 'Login successful'})
+            resp.set_cookie('expense_tracker_cookie_container', encoded_id, domain='.netfily.app', max_age=3600)
             return resp
         #If the credentials are incorrect the page refrehes with an error message
-        else:            
+        else:
             return jsonify({'message': 'Invalid username or password'}), 200
 
 
