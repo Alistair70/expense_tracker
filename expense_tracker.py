@@ -261,7 +261,6 @@ def get_income_types():
     master_user_id = decode(encoded_id)
     incomeTypes = col.find_one({"_id": master_user_id})
     incomeTypes = incomeTypes['income_types']
-    print(incomeTypes)
     return jsonify({'types':incomeTypes})
 
 ###FUNCTIONALITY TO ADD A NEW INCOMETYPE TO THE USER'S NOSQL DOCUMENT

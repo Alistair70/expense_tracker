@@ -1,6 +1,6 @@
 
-document.getElementById("login_btn").addEventListener("click", function() {
-
+document.getElementById("login_btn").addEventListener("click", function(event) {
+    event.preventDefault();
     // Gets user inputted credentials from form
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
@@ -50,8 +50,8 @@ document.getElementById("login_btn").addEventListener("click", function() {
         }
 });
 
-document.getElementById("demo_button").addEventListener("click", function() {
-
+document.getElementById("demo_button").addEventListener("click", function(event) {
+    event.preventDefault();
     const username = 'Jane25'
     const password = '12345'
 
