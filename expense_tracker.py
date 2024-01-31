@@ -43,7 +43,7 @@ def decode(payload):
 ###DEFINE INITIAL TEMPLATE ROUTES
 @app.route('/')
 def home():
-    return redirect("https://expense-tracker-landing.netlify.app/")
+    return redirect("https://landing.expense-tracker-demo.site/")
 
 @app.route('/success', methods = ['GET'])
 def success():

@@ -34,8 +34,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client[config["api_keys"]["LOCAL_DB_NAME"]]
 col = db[config["api_keys"]["LOCAL_COL_NAME"]]
 
-def encode(user_id):
-    
+def encode(user_id):    
     payload = {
         'sub': user_id
     }
@@ -90,36 +89,35 @@ def signup():
 
 ###Primary Sign-Up option is the traditional username-password method
 @app.route('/signup_user', methods=['POST'])
-def signup_user():
-    
-        #Request the user input from the input fields  
-        username = request.json.get('username')
-        password = request.json.get('password')
+def signup_user():    
+    #Request the user input from the input fields  
+    username = request.json.get('username')
+    password = request.json.get('password')
 
-        #Connects to the database to check if a username already exists
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT COUNT(id) FROM user_info where userID = '{username}'")
-        taken = cursor.fetchone()
+    #Connects to the database to check if a username already exists
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT COUNT(id) FROM user_info where userID = '{username}'")
+    taken = cursor.fetchone()
         
-        #If the username already exists the user is prompted to choose a different one
-        if taken[0] > 0:
-            return jsonify({'message' : 'exists'})
+    #If the username already exists the user is prompted to choose a different one
+    if taken[0] > 0:
+        return jsonify({'message' : 'exists'})
                      
-        #Password encrpytion
-        password = bcrypt.generate_password_hash(password).decode('utf-8')
-        query = f"INSERT INTO user_info VALUES (DEFAULT, '{username}', '{password}');"
-        #If all requirements are met then an entry is creaated in the SQL databse with the user's credentials
-        cursor.execute(query)
-        conn.commit()
+    #Password encrpytion
+    password = bcrypt.generate_password_hash(password).decode('utf-8')
+    query = f"INSERT INTO user_info VALUES (DEFAULT, '{username}', '{password}');"
+    #If all requirements are met then an entry is creaated in the SQL databse with the user's credentials
+    cursor.execute(query)
+    conn.commit()
 
-        cursor.execute(f"SELECT id FROM user_info WHERE userID = '{username}'")
-        nosqlID = cursor.fetchone()
-        nosqlID = nosqlID[0]
-        col.insert_one({"_id": nosqlID,"income_types":[],"expense_types":[],"budget":{}})
+    cursor.execute(f"SELECT id FROM user_info WHERE userID = '{username}'")
+    nosqlID = cursor.fetchone()
+    nosqlID = nosqlID[0]
+    col.insert_one({"_id": nosqlID,"income_types":[],"expense_types":[],"budget":{}})
         
-        #User is redirected to the login page to sign in
-        return jsonify({'message' : 'success'})
+    #User is redirected to the login page to sign in
+    return jsonify({'message' : 'success'})
 
 ####DASHBOARD
 #########################################################################
@@ -251,7 +249,7 @@ def add_income():
     conn.close
     return jsonify({'message' : 'success'})
 
-###FUNCTIONALITY TO GET THE VAROIUS INCOME TYPES THAT A USER HAS STORED IN 
+###FUNCTIONALITY TO GET THE VARIOUS INCOME TYPES THAT A USER HAS STORED IN 
 # THEIR NOSQL DOCUMENT AND RETURNS THE RESULTS TO THE JAVASCRIPT FONT-END
 @app.route('/get_income_types', methods = ['POST'])
 def get_income_types():
@@ -324,7 +322,7 @@ def delete_income_entry():
     master_user_id = decode(encoded_id)
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    # Crestes and commits a quesry to delete the entry from the database
+    # Creates and commits a query to delete the entry from the database
     cursor.execute(f"DELETE FROM user_income WHERE income_id = {incomeEntryTBR} AND user_id = {master_user_id};")
     conn.commit()
     conn.close
