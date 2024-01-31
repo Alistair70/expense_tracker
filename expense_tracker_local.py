@@ -122,8 +122,7 @@ def signup_user():
 ####DASHBOARD
 #########################################################################
 @app.route('/dashboard', methods = ['GET'])
-def dashboard():
-    
+def dashboard():    
     return render_template('dashboard.html')
 
 @app.route('/get_income_v_expense', methods = ['POST'])

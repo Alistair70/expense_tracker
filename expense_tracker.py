@@ -53,6 +53,10 @@ def success():
 def login():
     return render_template('login.html')
 
+@app.route("/favicon.ico")
+def favicon():
+    return url_for('static', filename='data:,')
+
 ###USER LOGIN FUNCTIONALITY
 @app.route('/user_login', methods=['POST','GET'])
 def user_login():
