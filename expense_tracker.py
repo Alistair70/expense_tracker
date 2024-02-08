@@ -13,7 +13,7 @@ bcrypt = Bcrypt(app)
 CORS(app)
 
 app.secret_key = os.environ.get('APP_SECRET_KEY')
-MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME')
+MONGO_DB_USERNAME = os.environ.get('MONGO_DB_USERNAME')
 MONGO_DB_PW = os.environ.get('MONGO_PW')
 MONGO_DB_DB = os.environ.get('MONGO_DB')
 MONGO_DB_COL = os.environ.get('MONGO_COL')
@@ -27,7 +27,7 @@ db_config = {
 
 COOKIE_NAME = os.environ.get('COOKIE_NAME')
 
-uri = f"mongodb+srv://{MONGO_DB_NAME}:{MONGO_DB_PW}@cluster0.wvhyisx.mongodb.net/?retryWrites=true&w=majority"
+uri = f"mongodb+srv://{MONGO_DB_USERNAME}:{MONGO_DB_PW}@cluster0.wvhyisx.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(uri)
 db = client[MONGO_DB_DB]
 col = db[MONGO_DB_COL]
