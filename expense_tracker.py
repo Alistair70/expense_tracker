@@ -12,6 +12,7 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 CORS(app)
 
+#RETREIVE NECESSARY VALUES FROM ENVIRONMENTAL VARIABLES
 app.secret_key = os.environ.get('APP_SECRET_KEY')
 MONGO_DB_USERNAME = os.environ.get('MONGO_DB_USERNAME')
 MONGO_DB_PW = os.environ.get('MONGO_PW')
@@ -32,6 +33,7 @@ client = pymongo.MongoClient(uri)
 db = client[MONGO_DB_DB]
 col = db[MONGO_DB_COL]
 
+#FUNCTIONS TO ENCODE AND DECODE THE USER ID BEFROE AND AFTER IT IS SENT OT THE FRONT-END
 def encode(user_id):    
     payload = {'user_id': user_id}
     return jwt.encode(payload, app.secret_key ,algorithm='HS256')
@@ -45,14 +47,6 @@ def decode(payload):
 def home():
     return redirect("https://landing.expense-tracker-demo.site/")
 
-@app.route('/success', methods = ['GET'])
-def success():
-    return render_template('success.html')
-
-@app.route('/login', methods=['GET','POST'])
-def login():
-    return render_template('login.html')
-
 @app.route("/favicon.ico")
 def favicon():
     return url_for('static', filename='data:,')
@@ -64,14 +58,13 @@ def user_login():
         username = request.json.get('username')
         password = request.json.get('password')
 
-        print(password)
-        print(username)
-
         #Connects to SQL database for user information and retreives the password
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
         cursor.execute(f"SELECT pass FROM user_info WHERE userID = '{username}' LIMIT 1")
         pw = cursor.fetchone()
+        if(not pw):
+            return jsonify({'message': 'Invalid username or password'}), 200    
         conn.close
 
         #If the given credentials are correct, user is redirected to their dashoard
@@ -126,17 +119,19 @@ def signup_user():
 ####DASHBOARD
 #########################################################################
 @app.route('/dashboard', methods = ['GET'])
-def dashboard():
-    
+def dashboard():    
     return render_template('dashboard.html')
 
+#Retreives income and expense data from the SQL database and returns them to the front-end
 @app.route('/get_income_v_expense', methods = ['POST'])
 def get_income_v_expense():
+    #gets and decodes the encoded user id from the front end
     encoded_id = request.json.get('encoded_id')
     master_user_id = decode(encoded_id)
     income = []
     expenses = []
 
+    #Using decoded user id, retrevie the income data from the SQL database
     query = f"SELECT SUM(amount) AS total_income, DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month FROM user_income WHERE user_id = {master_user_id} GROUP BY month ORDER BY month desc LIMIT 12;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
@@ -145,8 +140,8 @@ def get_income_v_expense():
     for row in data:
         income.append(dict(zip([column[0] for column in cursor.description], row)))
 
+    #Using decoded user id, retrevie the expenses data from the SQL database
     query = f"SELECT SUM(amount) AS total_expenses, DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month FROM user_expenses WHERE user_id = {master_user_id} GROUP BY month ORDER BY month desc LIMIT 12;"
-
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -155,13 +150,16 @@ def get_income_v_expense():
         expenses.append(dict(zip([column[0] for column in cursor.description], row)))        
     conn.close
     
+    #if there is either no income or expenses data the front-end recieves no data
     if len(income) == 0 and len(expenses) == 0:
         response = {'status' : 'no_data'}
         return jsonify(response)
 
+    #if there is data for bothe the incomes and expenses bth sets of data is returned to the front-end
     income_expense = {"income": income, "expenses": expenses}
     return jsonify(income_expense)
 
+#Retreives a breakdown of each income type and returns it to the front-end
 @app.route('/get_income_breakdown', methods = ['POST'])
 def get_income_breakdown():
     encoded_id = request.json.get('encoded_id')
@@ -210,14 +208,12 @@ def get_budget_recent_expenses():
 
     budget_targets = col.find_one({"_id": master_user_id})
     budget_targets = budget_targets['budget']
-    print(budget_targets)
 
     query = f"SELECT expense_type, SUM(amount) AS total_amount FROM user_expenses WHERE user_id = {master_user_id} AND YEAR(day_month_year) = YEAR(CURDATE()) AND MONTH(day_month_year) = MONTH(CURDATE()) GROUP BY expense_type;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall() 
-    print(data)   
     for row in data:
         monthly_expenses.append(dict(zip([column[0] for column in cursor.description], row)))
     conn.close
@@ -364,12 +360,9 @@ def add_expense():
 @app.route('/get_expense_types', methods = ['POST'])
 def get_expense_types():
     encoded_id = request.json.get('encoded_id')
-    print('enc')
-    print(encoded_id)
     master_user_id = decode(encoded_id)
     expenseTypes = col.find_one({"_id": master_user_id})
     expenseTypes = expenseTypes['expense_types']
-    print(expenseTypes)
     return jsonify({'types':expenseTypes})
 
 ### FUNCTINALITY TO ADD AN EXPENSE TYPE THE USER'S NOSQL DOCUMENT

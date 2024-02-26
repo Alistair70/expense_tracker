@@ -69,6 +69,8 @@ def user_login():
         cursor = conn.cursor()
         cursor.execute(f"SELECT pass FROM user_info WHERE userID = '{username}' LIMIT 1")
         pw = cursor.fetchone()
+        if(not pw):
+            return jsonify({'message': 'Invalid username or password'}), 200    
         conn.close
 
         #If the given credentials are correct, user is redirected to their dashoard
