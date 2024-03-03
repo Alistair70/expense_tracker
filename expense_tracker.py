@@ -232,7 +232,7 @@ def income():
     return render_template('add_income.html')
 
 ### ADDS USER INCOME TO SQL DATABASE USING INFORMATION PORVIDED BY JAVASCRIPT REQUEST
-@app.route('/add_income', methods = ['POST'])
+@app.route('/add_income', methods=['POST','GET'])
 def add_income():
     print('income')
     #PARSE DATA FROM JAVASCRIPT REQUEST
