@@ -234,6 +234,7 @@ def income():
 ### ADDS USER INCOME TO SQL DATABASE USING INFORMATION PORVIDED BY JAVASCRIPT REQUEST
 @app.route('/add_income', methods = ['POST'])
 def add_income():
+    print('income')
     #PARSE DATA FROM JAVASCRIPT REQUEST
     incomeType = request.json.get('incomeType')
     amount = request.json.get('amount')
@@ -343,6 +344,7 @@ def expenses():
 @app.route('/add_expense', methods = ['POST'])
 def add_expense():
     # Parse data from Javascript request
+    print('expense')
     expenseType = request.json.get('expenseType')
     amount = request.json.get('amount')
     date = request.json.get('date')
