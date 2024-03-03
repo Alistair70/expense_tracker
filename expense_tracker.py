@@ -247,6 +247,7 @@ def add_income():
     cursor.execute(f"INSERT INTO user_income VALUES (DEFAULT, '{user}', '{date}','{incomeType}','{amount}');")
     conn.commit()
     conn.close
+    print('successfully added income')
     return jsonify({'message' : 'success'})
 
 ###FUNCTIONALITY TO GET THE VAROIUS INCOME TYPES THAT A USER HAS STORED IN 
@@ -354,6 +355,7 @@ def add_expense():
     cursor.execute(f"INSERT INTO user_expenses VALUES (DEFAULT, '{user}', '{date}','{expenseType}','{amount}');")
     conn.commit()
     conn.close
+    print('successfully added expense')
     return jsonify({'message' : 'success'})
 
 ###FUNCTIONALITY TO GET ALL THE USER'S EXPENSE TYPES FOR THIER NOSQL DOCUMENT
