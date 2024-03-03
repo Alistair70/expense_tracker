@@ -57,7 +57,7 @@ def user_login():
         #Recieves the username and password from user
         username = request.json.get('username')
         password = request.json.get('password')
-
+        print("logging in")
         #Connects to SQL database for user information and retreives the password
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
