@@ -57,7 +57,6 @@ def user_login():
         #Recieves the username and password from user
         username = request.json.get('username')
         password = request.json.get('password')
-        print("logging in")
         #Connects to SQL database for user information and retreives the password
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -234,7 +233,6 @@ def income():
 ### ADDS USER INCOME TO SQL DATABASE USING INFORMATION PORVIDED BY JAVASCRIPT REQUEST
 @app.route('/add_income', methods=['POST','GET'])
 def add_income():
-    print('income')
     #PARSE DATA FROM JAVASCRIPT REQUEST
     incomeType = request.json.get('incomeType')
     amount = request.json.get('amount')
@@ -248,7 +246,6 @@ def add_income():
     cursor.execute(f"INSERT INTO user_income VALUES (DEFAULT, '{user}', '{date}','{incomeType}','{amount}');")
     conn.commit()
     conn.close
-    print('successfully added income')
     return jsonify({'message' : 'success'})
 
 ###FUNCTIONALITY TO GET THE VAROIUS INCOME TYPES THAT A USER HAS STORED IN 
@@ -344,7 +341,6 @@ def expenses():
 @app.route('/add_expense', methods = ['POST'])
 def add_expense():
     # Parse data from Javascript request
-    print('expense')
     expenseType = request.json.get('expenseType')
     amount = request.json.get('amount')
     date = request.json.get('date')
@@ -357,7 +353,6 @@ def add_expense():
     cursor.execute(f"INSERT INTO user_expenses VALUES (DEFAULT, '{user}', '{date}','{expenseType}','{amount}');")
     conn.commit()
     conn.close
-    print('successfully added expense')
     return jsonify({'message' : 'success'})
 
 ###FUNCTIONALITY TO GET ALL THE USER'S EXPENSE TYPES FOR THIER NOSQL DOCUMENT

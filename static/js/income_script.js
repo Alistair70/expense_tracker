@@ -109,7 +109,6 @@ document.getElementById("confirmIncomeBtn").addEventListener("click", function()
     else
     {
         saveIncomeToDatabase(selectedIncomeTypeInput, amountInput, dateInput);
-        location.reload();        
     }   
 });
 
@@ -124,6 +123,10 @@ function saveIncomeToDatabase(incomeType, amount, date) {
         body: JSON.stringify({ incomeType: incomeType, amount: amount, date: date, encoded_id:encoded_id})
     })
     .then(response => response.json())
+    .then(data => {
+        if(data.message === 'success')
+            location.reload();
+    });
 }
 
 //////////DISPLAY ADD INCOME FROM WHEN BUTTON IS CLICKED
