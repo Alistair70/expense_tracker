@@ -3,10 +3,12 @@ import mysql.connector
 import pymongo
 import os
 import jwt
-import json
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
+from collections import defaultdict
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -154,8 +156,36 @@ def get_income_v_expense():
         response = {'status' : 'no_data'}
         return jsonify(response)
 
-    #if there is data for bothe the incomes and expenses bth sets of data is returned to the front-end
-    income_expense = {"income": income, "expenses": expenses}
+    combined_dict = defaultdict(lambda: {'expenses': 0, 'income': 0})
+    current_date = datetime.now()
+
+    # Create a set to store the last 12 months
+    last_12_months = set()
+
+    # Loop through the last 12 months and add them to the set
+    for i in range(12):
+        last_month = current_date - relativedelta(months=i)
+        last_12_months.add(last_month.strftime('%Y-%m'))
+
+    for date in last_12_months:
+        for item in expenses:
+            if item['month'] == date:
+                combined_dict[date]['expenses'] = item['total_expenses']
+                break
+        for item in income:
+            if item['month'] == date:
+                combined_dict[date]['income'] = item['total_income']
+                break
+    
+    for date in last_12_months:
+        if combined_dict[date]['expenses'] == 0 and combined_dict[date]['income'] == 0:
+            combined_dict[date] = {'expenses': 0, 'income': 0}
+    
+    for date, amounts in sorted(combined_dict.items()):
+        print(f"Date: {date}, Expense: {amounts['expenses']}, Income: {amounts['income']}")
+
+    income_expense = {"income_expense":combined_dict}
+
     return jsonify(income_expense)
 
 #Retreives a breakdown of each income type and returns it to the front-end

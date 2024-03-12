@@ -35,6 +35,7 @@ function income_v_expense() {
     .then(response => response.json())
     .then(combinedData => {
 
+        console.log(combinedData.income_expense);
         if(combinedData.status == 'no_data')
         {
             console.log(combinedData.status)
@@ -42,9 +43,14 @@ function income_v_expense() {
             div.innerHTML = 'NO DATA';
         }
         // Process combined data for Plotly
-        const dates = combinedData.income.map(item => item.month);
-        const incomeValues = combinedData.income.map(item => item.total_income);
-        const expenseValues = combinedData.expenses.map(item => item.total_expenses);
+        //const dates = combinedData.income.map(item => item.month);
+        //const incomeValues = combinedData.income.map(item => item.total_income);
+        //const expenseValues = combinedData.expenses.map(item => item.total_expenses);
+
+        // Extract dates, incomes, and expenses from JSON
+        var dates = Object.keys(combinedData.income_expense);
+        var incomeValues = dates.map(date => combinedData.income_expense[date].income);
+        var expenseValues = dates.map(date => combinedData.income_expense[date].expenses);
 
         // Create Plotly chart
         const trace1 = {

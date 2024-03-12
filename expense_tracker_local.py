@@ -3,11 +3,13 @@ from flask import Flask,render_template,request, redirect, url_for, make_respons
 import mysql.connector
 import pymongo
 import jwt
-import os
 import json
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
+from collections import defaultdict
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -155,8 +157,40 @@ def get_income_v_expense():
     if len(income) == 0 and len(expenses) == 0:
         response = {'status' : 'no_data'}
         return jsonify(response)
+    
+    combined_dict = defaultdict(lambda: {'expenses': 0, 'income': 0})
+    ##
+    ##COMBINED 2
+    current_date = datetime.now()
 
-    income_expense = {"income": income, "expenses": expenses}
+    # Create a set to store the last 12 months
+    last_12_months = set()
+
+    # Loop through the last 12 months and add them to the set
+    for i in range(12):
+        last_month = current_date - relativedelta(months=i)
+        last_12_months.add(last_month.strftime('%Y-%m'))
+
+    for date in last_12_months:
+        for item in expenses:
+            if item['month'] == date:
+                combined_dict[date]['expenses'] = item['total_expenses']
+                break
+        for item in income:
+            if item['month'] == date:
+                combined_dict[date]['income'] = item['total_income']
+                break
+    
+    for date in last_12_months:
+        if combined_dict[date]['expenses'] == 0 and combined_dict[date]['income'] == 0:
+            combined_dict[date] = {'expenses': 0, 'income': 0}
+    
+    for date, amounts in sorted(combined_dict.items()):
+        print(f"Date: {date}, Expense: {amounts['expenses']}, Income: {amounts['income']}")
+    ##
+        
+    income_expense = {"income_expense":combined_dict}
+
     return jsonify(income_expense)
 
 @app.route('/get_income_breakdown', methods = ['POST'])
@@ -177,6 +211,22 @@ def get_income_breakdown():
     if len(incomes) == 0:
         response = {'status' : 'no_data'}
         return jsonify(response)
+    
+    # Dictionary to store combined amounts
+    combined_data = defaultdict(list)
+
+    # Combine amounts based on date and label
+    for entry in incomes:
+        key = (entry['month'], entry['income_type'])
+        combined_data[key].append(entry['income_type_sum'])
+
+    # Print combined data
+    for key, amounts in combined_data.items():
+        date, label = key
+        total_amount = sum(amounts)
+        #print(f"On {date}, {label}: Total amount = {total_amount}")
+
+    print(combined_data)
     return jsonify(incomes)
 
 @app.route('/get_expense_breakdown', methods = ['POST'])
