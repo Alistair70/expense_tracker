@@ -418,7 +418,7 @@ def get_recent_income():
     recent_income_entries = []
 
     # Queries the database to fetch all income entries for the current user
-    query = f"SELECT income_id, user_id, income_type, amount FROM user_income WHERE user_id = {master_user_id};"
+    query = f"SELECT income_id, user_id, income_type, amount, day_month_year FROM user_income WHERE user_id = {master_user_id};"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -535,7 +535,7 @@ def get_recent_expenses():
     recent_expense_entries = []
 
     # Creates and executes query to return all expense entries inputted by the user
-    query = f"SELECT expense_id, user_id, expense_type, amount FROM user_expenses WHERE user_id = {master_user_id};"
+    query = f"SELECT expense_id, user_id, expense_type, amount, day_month_year FROM user_expenses WHERE user_id = {master_user_id};"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
