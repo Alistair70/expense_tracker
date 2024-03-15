@@ -423,17 +423,26 @@ def get_recent_income():
     encoded_id = request.json.get('encoded_id')
     master_user_id = decode(encoded_id)
     recent_income_entries = []
-
+    
     # Queries the database to fetch all income entries for the current user
-    query = f"SELECT income_id, user_id, income_type, amount FROM user_income WHERE user_id = {master_user_id};"
+    query = f"SELECT income_id, user_id, income_type, amount, day_month_year FROM user_income WHERE user_id = {master_user_id};"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall()
-    
-    for row in data:
-        recent_income_entries.append(dict(zip([column[0] for column in cursor.description], row)))
 
+    for row in data:
+        formatted_date = row[4].strftime('%m-%d-%Y')
+        formatted_entry = {
+            'income_id': row[0],
+            'user_id': row[1],
+            'income_type': row[2],
+            'amount': row[3],
+            'date': formatted_date
+        }
+        recent_income_entries.append(formatted_entry)
+    conn.close
+    print(recent_income_entries)
     # Returns the results of the query to the Javascript front-end
     return jsonify({'entries' : recent_income_entries})
 
@@ -533,14 +542,22 @@ def get_recent_expenses():
     recent_expense_entries = []
 
     # Creates and executes query to return all expense entries inputted by the user
-    query = f"SELECT expense_id, user_id, expense_type, amount FROM user_expenses WHERE user_id = {master_user_id};"
+    query = f"SELECT expense_id, user_id, expense_type, amount, day_month_year FROM user_expenses WHERE user_id = {master_user_id};"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall()
     
     for row in data:
-        recent_expense_entries.append(dict(zip([column[0] for column in cursor.description], row)))
+        formatted_date = row[4].strftime('%m-%d-%Y')
+        formatted_entry = {
+            'expense_id': row[0],
+            'user_id': row[1],
+            'expense_type': row[2],
+            'amount': row[3],
+            'date': formatted_date
+        }
+        recent_expense_entries.append(formatted_entry)    
     conn.close
     
     # Returns te expense entries to the JavaScript from-end

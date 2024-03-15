@@ -181,9 +181,6 @@ def get_income_v_expense():
         if combined_dict[date]['expenses'] == 0 and combined_dict[date]['income'] == 0:
             combined_dict[date] = {'expenses': 0, 'income': 0}
     
-    for date, amounts in sorted(combined_dict.items()):
-        print(f"Date: {date}, Expense: {amounts['expenses']}, Income: {amounts['income']}")
-
     income_expense = {"income_expense":combined_dict}
 
     return jsonify(income_expense)
@@ -198,10 +195,8 @@ def get_income_breakdown():
     one_year_ago = datetime.now() - timedelta(days=365)
     one_year_ago = datetime(one_year_ago.year, one_year_ago.month + 1, 1)
     one_year_ago = one_year_ago.strftime('%Y-%m-%d')
-    print(one_year_ago)
 
     query = f"SELECT DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month, income_type, SUM(amount) AS income_type_sum FROM user_income WHERE user_id = {master_user_id} AND day_month_year > {one_year_ago} GROUP BY month, income_type ORDER BY month, income_type;"
-    print(query)
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -430,8 +425,17 @@ def get_recent_income():
     data = cursor.fetchall()
     
     for row in data:
-        recent_income_entries.append(dict(zip([column[0] for column in cursor.description], row)))
-
+        formatted_date = row[4].strftime('%m-%d-%Y')
+        formatted_entry = {
+            'income_id': row[0],
+            'user_id': row[1],
+            'income_type': row[2],
+            'amount': row[3],
+            'date': formatted_date
+        }
+        recent_income_entries.append(formatted_entry)
+    conn.close
+    print(recent_income_entries)
     # Returns the results of the query to the Javascript front-end
     return jsonify({'entries' : recent_income_entries})
 
@@ -538,7 +542,15 @@ def get_recent_expenses():
     data = cursor.fetchall()
     
     for row in data:
-        recent_expense_entries.append(dict(zip([column[0] for column in cursor.description], row)))
+        formatted_date = row[4].strftime('%m-%d-%Y')
+        formatted_entry = {
+            'expense_id': row[0],
+            'user_id': row[1],
+            'expense_type': row[2],
+            'amount': row[3],
+            'date': formatted_date
+        }
+        recent_expense_entries.append(formatted_entry)    
     conn.close
     
     # Returns te expense entries to the JavaScript from-end

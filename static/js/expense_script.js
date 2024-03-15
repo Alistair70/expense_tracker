@@ -212,6 +212,7 @@ function getExpenseEntries() {
             row.innerHTML = `
             <td>${data.entries[x]['expense_type']}</td>
             <td>${data.entries[x]['amount']}</td>
+            <td>${data.entries[x]['date']}</td>
             <td><button class="delete-btn" onclick="deleteEntry(${data.entries[x]['expense_id']})">Delete</button></td>
             `;
             tbody.appendChild(row);          
