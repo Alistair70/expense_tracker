@@ -57,7 +57,7 @@ function income_v_expense() {
             x: dates,
             y: incomeValues,
             type: 'scatter',
-            mode: 'lines',
+            mode: 'lines+markers',
             name: 'Income',
             line: {color: 'blue'}
         };
@@ -66,7 +66,7 @@ function income_v_expense() {
             x: dates,
             y: expenseValues,
             type: 'scatter',
-            mode: 'lines',
+            mode: 'lines+markers',
             name: 'Expenses',
             line: {color: 'red'}
         };
@@ -101,38 +101,30 @@ function income_breakdown() {
             var div1 = document.getElementById('income_breakdown');
             div1.innerHTML = 'NO DATA';
         }     
-        // Extract unique income types
-        const incomeTypes = [...new Set(data.map(entry => entry.income_type))];
+        console.log(data.sorted_combined_incomes)
+        incomes = data.sorted_combined_incomes
+        const dates = Object.keys(incomes);
+        const incomeTypes = Array.from(new Set(dates.flatMap(date => Object.keys(incomes[date]))));
 
-        // Prepare data for Plotly
-        const incomes = incomeTypes.map(income_type => {
-            const filteredData = data.filter(entry => entry.income_type === income_type);
-            const xValues = filteredData.map(entry => entry.month);
-            const yValues = filteredData.map(entry => entry.income_type_sum);
+        const traces = incomeTypes.map(incomeType => ({
+            x: dates,
+            y: dates.map(date => incomes[date][incomeType] || 0),
+            mode: 'lines+markers',
+            name: incomeType,
+            line: {color: getRandomColor()}
+        }));
 
-            return {
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: income_type,
-                x: xValues,
-                y: yValues
-            };
-        });
+        // Generate a random color
+        function getRandomColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16);
+        }
 
-        // Layout configuration for the plot
-        const layout = {
-            title: 'Monthly Income Comparison',
-            xaxis: {
-                title: 'Month'
-            },
-            yaxis: {
-                title: 'Total Income'
-            }
-        };
-
-        // Create the plot
-        Plotly.newPlot('income_breakdown', incomes, layout);
-                        
+        // Plot the graph
+        Plotly.newPlot('income_breakdown', traces, {
+            title: 'Monthly Income Breakdown',
+            xaxis: {title: 'Date'},
+            yaxis: {title: 'Amount'}
+        });                        
     });
 }
 
@@ -152,38 +144,31 @@ function expense_breakdown() {
             var div = document.getElementById('expense_breakdown');
             div.innerHTML = 'NO DATA';
         } 
-        
-        // Extract unique income types
-        const expenseTypes = [...new Set(data.map(entry => entry.expense_type))];
+        //change names for expenses
+        console.log(data.sorted_combined_expenses)
+        expenses = data.sorted_combined_expenses
+        const dates = Object.keys(expenses);
+        const expenseTypes = Array.from(new Set(dates.flatMap(date => Object.keys(expenses[date]))));
 
-        // Prepare data for Plotly
-        const expenses = expenseTypes.map(expense_type => {
-            const filteredData = data.filter(entry => entry.expense_type === expense_type);
-            const xValues = filteredData.map(entry => entry.month);
-            const yValues = filteredData.map(entry => entry.expense_type_sum);
+        const traces = expenseTypes.map(expenseType => ({
+            x: dates,
+            y: dates.map(date => expenses[date][expenseType] || 0),
+            mode: 'lines+markers',
+            name: expenseType,
+            line: {color: getRandomColor()}
+        }));
 
-            return {
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: expense_type,
-                x: xValues,
-                y: yValues
-            };
+        // Generate a random color
+        function getRandomColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16);
+        }
+
+        // Plot the graph
+        Plotly.newPlot('expense_breakdown', traces, {
+            title: 'Monthly Expense Breakdown',
+            xaxis: {title: 'Date'},
+            yaxis: {title: 'Amount'}
         });
-
-        // Layout configuration for the plot
-        const layout = {
-            title: 'Monthly Expense Comparison',
-            xaxis: {
-                title: 'Month'
-            },
-            yaxis: {
-                title: 'Total Expense'
-            }
-        };
-
-        // Create the plot
-        Plotly.newPlot('expense_breakdown', expenses, layout);
                         
     });
 }

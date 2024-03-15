@@ -7,8 +7,9 @@ import json
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
+import requests
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
@@ -184,11 +185,7 @@ def get_income_v_expense():
     for date in last_12_months:
         if combined_dict[date]['expenses'] == 0 and combined_dict[date]['income'] == 0:
             combined_dict[date] = {'expenses': 0, 'income': 0}
-    
-    for date, amounts in sorted(combined_dict.items()):
-        print(f"Date: {date}, Expense: {amounts['expenses']}, Income: {amounts['income']}")
-    ##
-        
+            
     income_expense = {"income_expense":combined_dict}
 
     return jsonify(income_expense)
@@ -199,35 +196,67 @@ def get_income_breakdown():
     master_user_id = decode(encoded_id)
     incomes = []
 
-    query = f"SELECT DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month, income_type, SUM(amount) AS income_type_sum FROM user_income WHERE user_id = {master_user_id} GROUP BY month, income_type ORDER BY month, income_type LIMIT 12;"
+    one_year_ago = datetime.now() - timedelta(days=365)
+    one_year_ago = datetime(one_year_ago.year, one_year_ago.month + 1, 1)
+    one_year_ago = one_year_ago.strftime('%Y-%m-%d')
+    print(one_year_ago)
+
+    query = f"SELECT DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month, income_type, SUM(amount) AS income_type_sum FROM user_income WHERE user_id = {master_user_id} AND day_month_year > {one_year_ago} GROUP BY month, income_type ORDER BY month, income_type;"
+    print(query)
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall()    
     for row in data:
-        incomes.append(dict(zip([column[0] for column in cursor.description], row)))
-        
+        incomes.append(dict(zip([column[0] for column in cursor.description], row)))        
     conn.close
+    
     if len(incomes) == 0:
         response = {'status' : 'no_data'}
         return jsonify(response)
-    
-    # Dictionary to store combined amounts
-    combined_data = defaultdict(list)
 
-    # Combine amounts based on date and label
-    for entry in incomes:
-        key = (entry['month'], entry['income_type'])
-        combined_data[key].append(entry['income_type_sum'])
 
-    # Print combined data
-    for key, amounts in combined_data.items():
-        date, label = key
-        total_amount = sum(amounts)
-        #print(f"On {date}, {label}: Total amount = {total_amount}")
+    #Get all possible income sub-categories  
+    incomeTypes = col.find_one({"_id": master_user_id})
+    income_cats = incomeTypes['income_types']
 
-    print(combined_data)
-    return jsonify(incomes)
+    # Create a defaultdict to store combined expenses
+    combined_incomes = defaultdict(lambda: defaultdict(int))
+
+    # Combine expenses
+    for income in incomes:
+        date = income["month"]
+        subcategory = income["income_type"]
+        amount = income["income_type_sum"]
+        combined_incomes[date][subcategory] += amount
+
+    # Create entries for the last 12 months
+    end_date = datetime.now().replace(day=1)
+    start_date = end_date - relativedelta(months=11)
+
+    current_date = start_date
+    while current_date <= end_date:
+        current_date_str = current_date.strftime("%Y-%m")
+        if current_date_str not in combined_incomes:
+            combined_incomes[current_date_str] = defaultdict(int)
+        current_date += relativedelta(months=1)
+
+    # Convert defaultdict to regular dictionary
+    combined_incomes = dict(combined_incomes)
+
+    # Fill in missing subcategories with 0
+    for date in combined_incomes:
+        subcategories = combined_incomes[date].keys()
+        all_subcategories = set(income_cats)  # Add all possible subcategories
+        missing_subcategories = all_subcategories - set(subcategories)
+        for subcategory in missing_subcategories:
+            combined_incomes[date][subcategory] = 0
+
+    # Sort the combined expenses by date
+    sorted_combined_incomes = dict(sorted(combined_incomes.items()))
+
+    return jsonify({"sorted_combined_incomes":sorted_combined_incomes})
+
 
 @app.route('/get_expense_breakdown', methods = ['POST'])
 def get_expense_breakdown():
@@ -235,7 +264,11 @@ def get_expense_breakdown():
     master_user_id = decode(encoded_id)
     expenses = []
 
-    query = f"SELECT DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month, expense_type, SUM(amount) AS expense_type_sum FROM user_expenses WHERE user_id = {master_user_id} GROUP BY month, expense_type ORDER BY month, expense_type LIMIT 12;"
+    one_year_ago = datetime.now() - timedelta(days=365)
+    one_year_ago = datetime(one_year_ago.year, one_year_ago.month + 1, 1)
+    one_year_ago = one_year_ago.strftime('%Y-%m-%d')
+
+    query = f"SELECT DATE_FORMAT(STR_TO_DATE(day_month_year, '%Y-%m-%d'), '%Y-%m') AS month, expense_type, SUM(amount) AS expense_type_sum FROM user_expenses WHERE user_id = {master_user_id} AND day_month_year > {one_year_ago} GROUP BY month, expense_type ORDER BY month, expense_type;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -247,7 +280,50 @@ def get_expense_breakdown():
     if len(expenses) == 0:
         response = {'status' : 'no_data'}
         return jsonify(response)
-    return jsonify(expenses)
+    
+    #Get all possible income sub-categories 
+         
+    incomeTypes = col.find_one({"_id": master_user_id})
+    expense_cats = incomeTypes['expense_types']
+
+    # Create a defaultdict to store combined expenses
+    combined_expenses = defaultdict(lambda: defaultdict(int))
+
+    # Combine expenses
+    for expense in expenses:
+        date = expense["month"]
+        subcategory = expense["expense_type"]
+        amount = expense["expense_type_sum"]
+        combined_expenses[date][subcategory] += amount
+
+    # Create entries for the last 12 months
+    end_date = datetime.now().replace(day=1)
+    start_date = end_date - relativedelta(months=11)
+
+    current_date = start_date
+    while current_date <= end_date:
+        current_date_str = current_date.strftime("%Y-%m")
+        if current_date_str not in combined_expenses:
+            combined_expenses[current_date_str] = defaultdict(int)
+        current_date += relativedelta(months=1)
+
+    # Convert defaultdict to regular dictionary
+    combined_expenses = dict(combined_expenses)
+
+    # Fill in missing subcategories with 0
+    for date in combined_expenses:
+        subcategories = combined_expenses[date].keys()
+        all_subcategories = set(expense_cats)  # Add all possible subcategories
+        missing_subcategories = all_subcategories - set(subcategories)
+        for subcategory in missing_subcategories:
+            combined_expenses[date][subcategory] = 0
+
+    # Sort the combined expenses by date
+    sorted_combined_expenses = dict(sorted(combined_expenses.items()))
+    
+    ###
+    return jsonify({"sorted_combined_expenses":sorted_combined_expenses})
+
 
 @app.route('/get_budget_recent_expenses', methods = ['POST'])
 def get_budget_recent_expenses():
@@ -257,14 +333,12 @@ def get_budget_recent_expenses():
 
     budget_targets = col.find_one({"_id": master_user_id})
     budget_targets = budget_targets['budget']
-    print(budget_targets)
 
     query = f"SELECT expense_type, SUM(amount) AS total_amount FROM user_expenses WHERE user_id = {master_user_id} AND YEAR(day_month_year) = YEAR(CURDATE()) AND MONTH(day_month_year) = MONTH(CURDATE()) GROUP BY expense_type;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall() 
-    print(data)   
     for row in data:
         monthly_expenses.append(dict(zip([column[0] for column in cursor.description], row)))
     conn.close
@@ -308,7 +382,6 @@ def get_income_types():
     master_user_id = decode(encoded_id)
     incomeTypes = col.find_one({"_id": master_user_id})
     incomeTypes = incomeTypes['income_types']
-    print(incomeTypes)
     return jsonify({'types':incomeTypes})
 
 ###FUNCTIONALITY TO ADD A NEW INCOMETYPE TO THE USER'S NOSQL DOCUMENT
@@ -412,12 +485,9 @@ def add_expense():
 @app.route('/get_expense_types', methods = ['POST'])
 def get_expense_types():
     encoded_id = request.json.get('encoded_id')
-    print('enc')
-    print(encoded_id)
     master_user_id = decode(encoded_id)
     expenseTypes = col.find_one({"_id": master_user_id})
     expenseTypes = expenseTypes['expense_types']
-    print(expenseTypes)
     return jsonify({'types':expenseTypes})
 
 ### FUNCTINALITY TO ADD AN EXPENSE TYPE THE USER'S NOSQL DOCUMENT
