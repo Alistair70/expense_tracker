@@ -425,7 +425,7 @@ def get_recent_income():
     recent_income_entries = []
     
     # Queries the database to fetch all income entries for the current user
-    query = f"SELECT income_id, user_id, income_type, amount, day_month_year FROM user_income WHERE user_id = {master_user_id};"
+    query = f"SELECT income_id, user_id, income_type, amount, day_month_year FROM user_income WHERE user_id = {master_user_id} ORDER BY day_month_year DESC;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -542,7 +542,7 @@ def get_recent_expenses():
     recent_expense_entries = []
 
     # Creates and executes query to return all expense entries inputted by the user
-    query = f"SELECT expense_id, user_id, expense_type, amount, day_month_year FROM user_expenses WHERE user_id = {master_user_id};"
+    query = f"SELECT expense_id, user_id, expense_type, amount, day_month_year FROM user_expenses WHERE user_id = {master_user_id} ORDER BY day_month_year DESC;"
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -573,7 +573,7 @@ def delete_expense_entry():
     cursor = conn.cursor()
 
     # Creates and executes a query to delete the expense entry selected by the user
-    cursor.execute(f"DELETE FROM user_income WHERE income_id = {expenseEntryTBR} AND user_id = {master_user_id};")
+    cursor.execute(f"DELETE FROM user_expenses WHERE expense_id = {expenseEntryTBR} AND user_id = {master_user_id};")
     conn.commit()
     conn.close
 

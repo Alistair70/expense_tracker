@@ -236,7 +236,11 @@ function budget_progress() {
                 scales: 
                 {
                     x: {beginAtZero: true,max: 100,title:{display: true, text: 'Percentage of Budget Spent', padding: {top: 20,bottom: 10}}},
-                    y: {title:{display: true, text: 'Expense Type', padding: {top: 20,bottom: 10}}}
+                    y: {title:{display: true, text: 'Expense Type', padding: {top: 20,bottom: 10}}},
+                    xAxis: [{
+                        barThickness: 60,  // number (pixels) or 'flex'
+                        maxBarThickness: 8 // number (pixels)
+                    }]
                 },
 
                 responsive: true,
