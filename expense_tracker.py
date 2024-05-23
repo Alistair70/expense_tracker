@@ -566,7 +566,7 @@ def delete_expense_entry():
     cursor = conn.cursor()
 
     # Creates and executes a query to delete the expense entry selected by the user
-    cursor.execute(f"DELETE FROM user_income WHERE income_id = {expenseEntryTBR} AND user_id = {master_user_id};")
+    cursor.execute(f"DELETE FROM user_expense WHERE expense_id = {expenseEntryTBR} AND user_id = {master_user_id};")
     conn.commit()
     conn.close
 
