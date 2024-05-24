@@ -677,10 +677,8 @@ def gen_password():
     cursor.execute(f"INSERT INTO messages VALUES (DEFAULT, {name}, {email}, {mess});")
     conn.commit()
     conn.close
-
-
         
-    return jsonify({'password': pw}), 200
+    return jsonify({'message': 'success'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
