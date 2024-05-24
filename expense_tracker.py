@@ -30,6 +30,13 @@ db_config = {
     'database': os.environ.get('RDS_DB_NAME'),
 }
 
+mess_db_config = {
+    'host': os.environ.get('AWS_RDS_URI'),
+    'user': os.environ.get('RDS_USERNAME'),
+    'password': os.environ.get('RDS_PASSWORD'),
+    'database': os.environ.get('RDS_DB_MESS_NAME'),
+}
+
 COOKIE_NAME = os.environ.get('COOKIE_NAME')
 
 uri = f"mongodb+srv://{MONGO_DB_USERNAME}:{MONGO_DB_PW}@cluster0.wvhyisx.mongodb.net/?retryWrites=true&w=majority"
@@ -655,6 +662,23 @@ def gen_password():
             random_symbol = random.choice(symbols)
             pw += random_symbol
             n = n+1
+        
+    return jsonify({'password': pw}), 200
+
+@app.route('/gen_password', methods=['POST','GET'])
+def gen_password():
+    name = request.json.get('name')
+    email = request.json.get('email')
+    mess = request.json.get('mess')
+
+    conn = mysql.connector.connect(**mess_db_config)
+    cursor = conn.cursor()
+    # Crestes and commits a quesry to delete the entry from the database
+    cursor.execute(f"INSERT INTO messages VALUES (DEFAULT, {name}, {email}, {mess});")
+    conn.commit()
+    conn.close
+
+
         
     return jsonify({'password': pw}), 200
 
