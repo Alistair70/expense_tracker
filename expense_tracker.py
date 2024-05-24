@@ -666,7 +666,7 @@ def gen_password():
     return jsonify({'password': pw}), 200
 
 @app.route('/save_massage', methods=['POST','GET'])
-def gen_password():
+def save_message():
     name = request.json.get('name')
     email = request.json.get('email')
     mess = request.json.get('mess')
