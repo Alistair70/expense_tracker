@@ -674,7 +674,7 @@ def save_message():
     conn = mysql.connector.connect(**mess_db_config)
     cursor = conn.cursor()
     # Crestes and commits a quesry to delete the entry from the database
-    cursor.execute(f"INSERT INTO messages VALUES (DEFAULT, '{name}', '{email}'', '{mess}');")
+    cursor.execute(f"INSERT INTO messages VALUES (DEFAULT, '{name}', '{email}', '{mess}');")
     conn.commit()
     conn.close
         
