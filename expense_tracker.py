@@ -444,7 +444,6 @@ def get_recent_income():
         }
         recent_income_entries.append(formatted_entry)
     conn.close
-    print(recent_income_entries)
     # Returns the results of the query to the Javascript front-end
     return jsonify({'entries' : recent_income_entries})
 
@@ -630,12 +629,6 @@ def gen_password():
     inc_num = request.json.get('includeNumbersValue')
     inc_upp = request.json.get('includeUppercaseValue')
 
-
-    print(length)
-    print(inc_sym)
-    print(inc_num)
-    print(inc_upp)
-
     pw = ""
     n = 0
 
@@ -675,7 +668,6 @@ def save_message():
     cursor = conn.cursor()
     # Crestes and commits a quesry to delete the entry from the database
     query = f"INSERT INTO messages VALUES (DEFAULT, '{name}', '{email}', '{mess}');"
-    print(query)
     cursor.execute(query)
     conn.commit()
     conn.close
